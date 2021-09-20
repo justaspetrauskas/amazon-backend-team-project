@@ -1,23 +1,33 @@
-import express from 'express'
-import cors from 'cors'
+
+
+
+
+
+
+
+import express from "express"
+
+import cors from "cors"
+import productsRouter from "./products/index.js"
 import listEndpoints from "express-list-endpoints"
 import reviewRouter from "./services/reviews/index.js"
 
-const server = express()
-const port = 3001
+const server = express();
 
-//---Global Middlewares---
+const PORT = 3003;
 
-server.use(cors())    // Add this to make your FE be able to communicate with BE
-server.use(express.json())    // If I do not specify this line BEFORE the routes, all the requests' bodies will be UNDEFINED
+server.use(cors());
 
+server.use(express.json());
 
-
+server.use("/products", productsRouter);
 server.use("/reviews", reviewRouter)
 
 console.table(listEndpoints(server))
 
+server.listen(PORT, () => console.log("The server running on port:", PORT));
 
-server.listen(port, () => {
-  console.log("SERVER RUNNING ON PORT", port)
-})
+server.on("error", (error) =>
+    console.log(`Server is not running due to: ${error}`)
+);
+
