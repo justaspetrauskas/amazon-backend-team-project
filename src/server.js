@@ -1,16 +1,11 @@
 
-
-
-
-
-
-
-import express from "express"
-
-import cors from "cors"
-import productsRouter from "./products/index.js"
+import express from "express";
+import cors from "cors";
+import productsRouter from "./products/index.js";
+import { publicFolderPath } from "../utils/utils.js";
 import listEndpoints from "express-list-endpoints"
 import reviewRouter from "./services/reviews/index.js"
+
 
 const server = express();
 
@@ -19,6 +14,7 @@ const PORT = 3003;
 server.use(cors());
 
 server.use(express.json());
+server.use(express.static(publicFolderPath));
 
 server.use("/products", productsRouter);
 server.use("/reviews", reviewRouter)

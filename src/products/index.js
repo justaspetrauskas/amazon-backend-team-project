@@ -1,35 +1,25 @@
-import { Router } from "express";
-
-import fs from "fs";
-
+import express from "express";
 import uniqid from "uniqid";
+import createHttpError from "http-errors";
+import { imageUpload, getProducts, writeProducts } from "../../utils/utils.js";
 
-import path, { dirname } from "path";
 
-import { fileURLToPath } from "url";
+const productsRouter = express.Router();
 
-import { checkProductSchema, checkValidationResult } from "./validation.js";
 
-const _filename = fileURLToPath(import.meta.url);
-
-const _dirname = dirname(_filename);
-
-const productsFilePath = path.join(_dirname, "products.json");
-
-const productsRouter = Router();
 
 //to get the products
-
 productsRouter.get("/", async (req, res, next) => {
-    try {
-        const fileAsBuffer = fs.readFileSync(productsFilePath)
-        const fileAsString = fileAsBuffer.toString()
-        const fileAsJson = JSON.parse(fileAsString)
-        response.send(fileAsJson)
-    } catch (error) {
-        res.send(500).send({ message: error.message })
-    }
-})
+
+  try {
+    const products = await getProducts();
+
+    res.status(200).send(products);
+  } catch (error) {
+    next(createHttpError(400, { message: error.message }));
+  }
+});
+
 
 //to get a single product
 productsRouter.get("/:id", async (req, res, next) => {
@@ -50,74 +40,90 @@ productsRouter.get("/:id", async (req, res, next) => {
 });
 
 //to post a product
-productsRouter.post("/", checkProductSchema, checkValidationResult, async (req, res, next) => {
-    try {
-        const product = {
-            id: uniqid(),
-            ...req.body,
-            createdAt: new Date(),
-            updatedAt: new Date()
-        }
 
-        const fileAsBuffer = fs.readFileSync(productsFilePath)
-        const fileAsString = fileAsBuffer.toString()
-        const fileAsJson = JSON.parse(fileAsString)
-        fileAsJson.push(product)
-        fs.writeFileSync(productsFilePath, JSON.stringify(fileAsJson))
-        res.send(product)
-    } catch (error) {
-        res.send(500).send({ message: error.message })
+productsRouter.post("/", async (req, res, next) => {
+  try {
+    const newProduct = {
+      id: uniqid(),
+      ...req.body,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+
+    const products = await getProducts();
+
+    products.push(newProduct);
+    await writeProducts(products);
+    res.status(200).send({ newProduct });
+  } catch (error) {
+    res.send(500).send({ message: error.message });
+  }
+});
+//to post a picture
+productsRouter.post(
+  "/:id/upload",
+  imageUpload.single("image"),
+  async (req, res, next) => {
+    try {
+      const products = await getProducts();
+      const product = products.find((product) => product.id === req.params.id);
+      if (!product) {
+        next(createHttpError(400, { message: error.message }));
+      } else {
+        product["imageURL"] = req.file.path;
+        // products.push(product);
+        await writeProducts(products);
+
+        res.status(200).send({ product });
+      }
+    } catch (err) {
+      next(createHttpError(400, { message: error.message }));
     }
-})
+  }
+);
 
 // to update the product
 productsRouter.put("/:id", async (req, res, next) => {
-    try {
-        const fileAsBuffer = fs.readFileSync(productsFilePath);
-        const fileAsString = fileAsBuffer.toString();
-        const fileAsJson = JSON.parse(fileAsString);
+  try {
+    const products = await getProducts();
 
-        const productIndex = fileAsJson.findIndex(
-            (product) => product.id === req.params.id
-        );
-        if (!productIndex == -1) {
-            res
-                .status(404)
-                .send({ message: `product with ${req.params.id} is not found` });
-        }
-        const previousProductData = fileAsJson[productIndex];
-        const changedProduct = {
-            ...previousProductData,
-            ...req.body,
-            updatedAt: new Date(),
-            id: req.params.id,
-        };
-        fileAsJson[productIndex] = changedProduct;
-        fs.writeFileSync(productsFilePath, JSON.stringify(fileAsJson));
-        res.send(changedProduct);
-    } catch (error) {
-        res.send(500).send({ message: error.message });
+    const productIndex = products.findIndex(
+      (product) => product.id === req.params.id
+    );
+    if (!productIndex == -1) {
+      res
+        .status(404)
+        .send({ message: `product with ${req.params.id} is not found` });
     }
+    const previousProductData = products[productIndex];
+    const changedProduct = {
+      ...previousProductData,
+      ...req.body,
+      updatedAt: new Date(),
+    };
+    products[productIndex] = changedProduct;
+    await writeProducts(products);
+    res.send("updated");
+  } catch (error) {
+    next(createHttpError(400, { message: error.message }));
+  }
 });
 
 productsRouter.delete("/:id", async (req, res, next) => {
-    try {
-        const fileAsBuffer = fs.readFileSync(productsFilePath);
-        const fileAsString = fileAsBuffer.toString();
-        let fileAsJson = JSON.parse(fileAsString);
+  try {
+    const products = await getProducts();
 
-        const product = fileAsJson.find((product) => product.id === req.params.id);
-        if (!product) {
-            res
-                .status(404)
-                .send({ message: `Product with ${req.params.id} is not found!` });
-        }
-        fileAsJson = fileAsJson.filter((product) => product.id !== req.params.id);
-        fs.writeFileSync(productsFilePath, JSON.stringify(fileAsJson));
-        res.status(204).send();
-    } catch (error) {
-        res.send(500).send({ message: error.message });
+    const product = products.find((product) => product.id === req.params.id);
+    if (!product) {
+      next(createHttpError(400, { message: error.message }));
     }
+    const filtered = products.filter((product) => product.id !== req.params.id);
+    await writeProducts(filtered);
+    res.status(204).send();
+  } catch (error) {
+    next(createHttpError(400, { message: error.message }));
+  }
+
 });
 
 export default productsRouter
