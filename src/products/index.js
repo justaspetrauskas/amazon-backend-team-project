@@ -53,7 +53,10 @@ productsRouter.post("/", async (req, res, next) => {
     const { product_name, description, brand, price } = req.body;
     const product = {
       id: uniqid(),
-      ...req.body,
+      product_name,
+      description,
+      brand,
+      price,
       createdAt: new Date(),
       updatedAt: new Date(),
     };
