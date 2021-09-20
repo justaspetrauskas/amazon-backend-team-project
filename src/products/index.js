@@ -50,6 +50,7 @@ productsRouter.get("/:id", async (req, res, next) => {
 //to post a product
 productsRouter.post("/", async (req, res, next) => {
   try {
+    const { product_name, description, brand, price } = req.body;
     const product = {
       id: uniqid(),
       ...req.body,

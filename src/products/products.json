@@ -1,11 +1,1 @@
-[
-    {
-        "_id": "5d318e1a8541744830bef139",
-        "name": "3310",
-        "description": "somthing longer",
-        "brand": "nokia",
-        "imageUrl": "https://drop.ndtv.com/TECH/product_database/images/2152017124957PM_635_nokia_3310.jpeg?downsize=*:420&output-quality=80",
-        "price": 100,
-        "category": "smartphones"
-    }
-]
+[{"_id":"5d318e1a8541744830bef139","name":"3310","description":"somthing longer","brand":"nokia","imageUrl":"https://drop.ndtv.com/TECH/product_database/images/2152017124957PM_635_nokia_3310.jpeg?downsize=*:420&output-quality=80","price":100,"category":"smartphones"},{"id":"80l9i1u6wktsn9vpy","createdAt":"2021-09-20T12:48:34.773Z","updatedAt":"2021-09-20T12:48:34.773Z"},{"id":"80l9i1b84ktsnb46i","createdAt":"2021-09-20T12:49:32.393Z","updatedAt":"2021-09-20T12:49:32.393Z"},{"id":"80l9i1ob4ktsneymv","createdAt":"2021-09-20T12:52:31.830Z","updatedAt":"2021-09-20T12:52:31.830Z"},{"id":"80l9i1t7cktsnk2eo","name":"3310","description":"somthing longer","brand":"nokia","price":100,"category":"smartphones","createdAt":"2021-09-20T12:56:29.999Z","updatedAt":"2021-09-20T12:56:29.999Z"},{"id":"80l9i1134ktsnpat8","createdAt":"2021-09-20T13:00:34.171Z","updatedAt":"2021-09-20T13:00:34.171Z"},{"id":"80l9i1hr0ktsnqz4f","createdAt":"2021-09-20T13:01:52.334Z","updatedAt":"2021-09-20T13:01:52.334Z"},{"id":"80l9i1j5kktsnt8cv","createdAt":"2021-09-20T13:03:37.614Z","updatedAt":"2021-09-20T13:03:37.614Z"},{"id":"80l9i1178ktsnu3ec","createdAt":"2021-09-20T13:04:17.843Z","updatedAt":"2021-09-20T13:04:17.843Z"},{"id":"80l9i1kj4ktsnuco5","createdAt":"2021-09-20T13:04:29.860Z","updatedAt":"2021-09-20T13:04:29.860Z"},{"id":"80l9i1ut8ktsnv57b","createdAt":"2021-09-20T13:05:06.838Z","updatedAt":"2021-09-20T13:05:06.838Z"},{"id":"80l9i1hmgktsnvbcd","createdAt":"2021-09-20T13:05:14.796Z","updatedAt":"2021-09-20T13:05:14.796Z"},{"id":"80l9i184gktsnzfwp","createdAt":"2021-09-20T13:08:27.336Z","updatedAt":"2021-09-20T13:08:27.336Z"},{"id":"80l9i184gktso4c2f","name":"483-502-6487","description":"empowering","brand":"Wyman88","price":300,"category":"smartphones","createdAt":"2021-09-20T13:12:15.639Z","updatedAt":"2021-09-20T13:12:15.639Z"}]
