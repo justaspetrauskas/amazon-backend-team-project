@@ -19,7 +19,7 @@ const productsRouter = express.Router()
 
 //to get the products
 
-productsRouter.get("/products", async (req, res, next) => {
+productsRouter.get("/", async (req, res, next) => {
     try {
         const fileAsBuffer = fs.readFileSync(productsFilePath)
         const fileAsString = fileAsBuffer.toString()
@@ -31,7 +31,7 @@ productsRouter.get("/products", async (req, res, next) => {
 })
 
 //to get a single product
-productsRouter.get("/products/:id", async (req, res, next) => {
+productsRouter.get("/:id", async (req, res, next) => {
     try {
         const fileAsBuffer = fs.readFileSync(productsFilePath)
         const fileAsString = fileAsBuffer.toString()
@@ -47,7 +47,7 @@ productsRouter.get("/products/:id", async (req, res, next) => {
 })
 
 //to post a product
-productsRouter.post("/products", async (req, res, next) => {
+productsRouter.post("/", async (req, res, next) => {
     try {
         const product = {
             id: uniqid(),
@@ -68,7 +68,7 @@ productsRouter.post("/products", async (req, res, next) => {
 })
 
 // to update the product
-productsRouter.put("/products/:id", async (req, res, next) => {
+productsRouter.put("/:id", async (req, res, next) => {
     try {
         const fileAsBuffer = fs.readFileSync(productsFilePath)
         const fileAsString = fileAsBuffer.toString()
@@ -96,7 +96,7 @@ productsRouter.put("/products/:id", async (req, res, next) => {
 })
 
 
-productsRouter.delete("/products/:id", async (req, res, next) => {
+productsRouter.delete("/:id", async (req, res, next) => {
     try {
         const fileAsBuffer = fs.readFileSync(productsFilePath)
         const fileAsString = fileAsBuffer.toString()
