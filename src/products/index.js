@@ -1,41 +1,27 @@
-import { Router } from "express";
-
-import fs from "fs";
-
+import express from "express";
 import uniqid from "uniqid";
+import createHttpError from "http-errors";
+import { imageUpload, getProducts, writeProducts } from "../../utils/utils.js";
 
-import path, { dirname } from "path";
-
-import { fileURLToPath } from "url";
-
-const _filename = fileURLToPath(import.meta.url);
-
-const _dirname = dirname(_filename);
-
-const productsFilePath = path.join(_dirname, "products.json");
-
-const productsRouter = Router();
+const productsRouter = express.Router();
 
 //to get the products
 
 productsRouter.get("/", async (req, res, next) => {
   try {
-    const fileAsBuffer = fs.readFileSync(productsFilePath);
-    const fileAsString = fileAsBuffer.toString();
-    const fileAsJson = await JSON.parse(fileAsString);
-    res.status(200).send(fileAsJson);
+    const products = await getProducts();
+
+    res.status(200).send(products);
   } catch (error) {
-    res.send(500).send({ message: error.message });
+    next(createHttpError(400, { message: error.message }));
   }
 });
 
 //to get a single product
 productsRouter.get("/:id", async (req, res, next) => {
   try {
-    const fileAsBuffer = fs.readFileSync(productsFilePath);
-    const fileAsString = fileAsBuffer.toString();
-    fileAsJson = JSON.parse(fileAsString);
-    const product = fileAsJson.find((product) => product.id === req.params.id);
+    const products = await getProducts();
+    const product = products.find((product) => product.id === req.params.id);
     if (!product) {
       res
         .status(404)
@@ -50,36 +36,51 @@ productsRouter.get("/:id", async (req, res, next) => {
 //to post a product
 productsRouter.post("/", async (req, res, next) => {
   try {
-    const { product_name, description, brand, price } = req.body;
-    const product = {
+    const newProduct = {
       id: uniqid(),
-      product_name,
-      description,
-      brand,
-      price,
+      ...req.body,
       createdAt: new Date(),
       updatedAt: new Date(),
     };
 
-    const fileAsBuffer = fs.readFileSync(productsFilePath);
-    const fileAsString = fileAsBuffer.toString();
-    const fileAsJson = JSON.parse(fileAsString);
-    fileAsJson.push(product);
-    fs.writeFileSync(productsFilePath, JSON.stringify(fileAsJson));
-    res.send(product);
+    const products = await getProducts();
+
+    products.push(newProduct);
+    await writeProducts(products);
+    res.status(200).send({ newProduct });
   } catch (error) {
     res.send(500).send({ message: error.message });
   }
 });
+//to post a picture
+productsRouter.post(
+  "/:id/upload",
+  imageUpload.single("image"),
+  async (req, res, next) => {
+    try {
+      const products = await getProducts();
+      const product = products.find((product) => product.id === req.params.id);
+      if (!product) {
+        next(createHttpError(400, { message: error.message }));
+      } else {
+        product["imageURL"] = req.file.path;
+        // products.push(product);
+        await writeProducts(products);
+
+        res.status(200).send({ product });
+      }
+    } catch (err) {
+      next(createHttpError(400, { message: error.message }));
+    }
+  }
+);
 
 // to update the product
 productsRouter.put("/:id", async (req, res, next) => {
   try {
-    const fileAsBuffer = fs.readFileSync(productsFilePath);
-    const fileAsString = fileAsBuffer.toString();
-    const fileAsJson = JSON.parse(fileAsString);
+    const products = await getProducts();
 
-    const productIndex = fileAsJson.findIndex(
+    const productIndex = products.findIndex(
       (product) => product.id === req.params.id
     );
     if (!productIndex == -1) {
@@ -87,38 +88,33 @@ productsRouter.put("/:id", async (req, res, next) => {
         .status(404)
         .send({ message: `product with ${req.params.id} is not found` });
     }
-    const previousProductData = fileAsJson[productIndex];
+    const previousProductData = products[productIndex];
     const changedProduct = {
       ...previousProductData,
       ...req.body,
       updatedAt: new Date(),
-      id: req.params.id,
     };
-    fileAsJson[productIndex] = changedProduct;
-    fs.writeFileSync(productsFilePath, JSON.stringify(fileAsJson));
-    res.send(changedProduct);
+    products[productIndex] = changedProduct;
+    await writeProducts(products);
+    res.send("updated");
   } catch (error) {
-    res.send(500).send({ message: error.message });
+    next(createHttpError(400, { message: error.message }));
   }
 });
 
 productsRouter.delete("/:id", async (req, res, next) => {
   try {
-    const fileAsBuffer = fs.readFileSync(productsFilePath);
-    const fileAsString = fileAsBuffer.toString();
-    let fileAsJson = JSON.parse(fileAsString);
+    const products = await getProducts();
 
-    const product = fileAsJson.find((product) => product.id === req.params.id);
+    const product = products.find((product) => product.id === req.params.id);
     if (!product) {
-      res
-        .status(404)
-        .send({ message: `Product with ${req.params.id} is not found!` });
+      next(createHttpError(400, { message: error.message }));
     }
-    fileAsJson = fileAsJson.filter((product) => product.id !== req.params.id);
-    fs.writeFileSync(productsFilePath, JSON.stringify(fileAsJson));
+    const filtered = products.filter((product) => product.id !== req.params.id);
+    await writeProducts(filtered);
     res.status(204).send();
   } catch (error) {
-    res.send(500).send({ message: error.message });
+    next(createHttpError(400, { message: error.message }));
   }
 });
 
