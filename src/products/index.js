@@ -3,11 +3,14 @@ import uniqid from "uniqid";
 import createHttpError from "http-errors";
 import { imageUpload, getProducts, writeProducts } from "../../utils/utils.js";
 
+
 const productsRouter = express.Router();
 
-//to get the products
 
+
+//to get the products
 productsRouter.get("/", async (req, res, next) => {
+
   try {
     const products = await getProducts();
 
@@ -17,23 +20,27 @@ productsRouter.get("/", async (req, res, next) => {
   }
 });
 
+
 //to get a single product
 productsRouter.get("/:id", async (req, res, next) => {
-  try {
-    const products = await getProducts();
-    const product = products.find((product) => product.id === req.params.id);
-    if (!product) {
-      res
-        .status(404)
-        .send({ message: `Product with ${req.params.id} is not found` });
+    try {
+        const fileAsBuffer = fs.readFileSync(productsFilePath);
+        const fileAsString = fileAsBuffer.toString();
+        fileAsJson = JSON.parse(fileAsString);
+        const product = fileAsJson.find((product) => product.id === req.params.id);
+        if (!product) {
+            res
+                .status(404)
+                .send({ message: `Product with ${req.params.id} is not found` });
+        }
+        res.send(product);
+    } catch (error) {
+        res.send(500).send({ message: error.message });
     }
-    res.send(product);
-  } catch (error) {
-    res.send(500).send({ message: error.message });
-  }
 });
 
 //to post a product
+
 productsRouter.post("/", async (req, res, next) => {
   try {
     const newProduct = {
@@ -116,6 +123,7 @@ productsRouter.delete("/:id", async (req, res, next) => {
   } catch (error) {
     next(createHttpError(400, { message: error.message }));
   }
+
 });
 
-export default productsRouter;
+export default productsRouter
