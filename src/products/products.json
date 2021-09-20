@@ -1,11 +1,1 @@
-[
-    {
-        "_id": "5d318e1a8541744830bef139",
-        "name": "3310",
-        "description": "somthing longer",
-        "brand": "nokia",
-        "imageUrl": "https://drop.ndtv.com/TECH/product_database/images/2152017124957PM_635_nokia_3310.jpeg?downsize=*:420&output-quality=80",
-        "price": 100,
-        "category": "smartphones"
-    }
-]
+[{"name":"3310","description":"somthing longer","brand":"nokia","imageUrl":"https://drop.ndtv.com/TECH/product_database/images/2152017124957PM_635_nokia_3310.jpeg?downsize=*:420&output-quality=80","price":100,"category":"smartphones"},{"id":"2rqe7qurp9ktsndudp","createdAt":"2021-09-20T12:51:39.660Z","updatedAt":"2021-09-20T12:51:39.660Z"},{"id":"2rqe7qurttktsndzve","createdAt":"2021-09-20T12:51:46.777Z","updatedAt":"2021-09-20T12:51:46.777Z"},{"id":"2rqe7quruektsne0s6","createdAt":"2021-09-20T12:51:47.957Z","updatedAt":"2021-09-20T12:51:47.957Z"}]
