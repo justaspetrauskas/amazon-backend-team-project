@@ -9,8 +9,19 @@ const server = express();
 
 const PORT = process.env.PORT;
 console.log(PORT);
+const whitelist = [process.env.FE_DEV_URL, "https://anotherwebsite.com"];
 
-server.use(cors());
+const corsOpts = {
+  origin: function (origin, next) {
+    if (whitelist.indexOf(origin) !== -1) {
+      next(null, true);
+    } else {
+      next(new Error("Origins is not allowed"));
+    }
+  },
+};
+
+server.use(cors(corsOpts));
 
 server.use(express.json());
 server.use(express.static(publicFolderPath));
