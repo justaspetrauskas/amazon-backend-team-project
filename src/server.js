@@ -7,7 +7,8 @@ import reviewRouter from "./services/reviews/index.js";
 
 const server = express();
 
-const PORT = 3003;
+const PORT = process.env.PORT;
+console.log(PORT);
 
 server.use(cors());
 
