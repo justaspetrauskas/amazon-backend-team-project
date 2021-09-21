@@ -23,8 +23,16 @@ const storage = multer.diskStorage({
 });
 
 export const imageUpload = multer({ storage: storage });
-const dataFolderPath = join(dirname(fileURLToPath(import.meta.url)), "../data");
+export const dataFolderPath = join(
+  dirname(fileURLToPath(import.meta.url)),
+  "../data"
+);
 const productsJSONPath = join(dataFolderPath, "products.json");
+
+const reviewsJSONPath = join(dataFolderPath, "reviews.json");
+
+export const getReviews = () => readJSON(reviewsJSONPath);
+export const writeReviews = (content) => writeJSON(reviewsJSONPath, content);
 
 export const writeProducts = (content) => writeJSON(productsJSONPath, content);
 export const getProducts = () => readJSON(productsJSONPath);

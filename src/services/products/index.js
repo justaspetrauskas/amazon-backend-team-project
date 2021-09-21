@@ -1,46 +1,74 @@
 import express from "express";
 import uniqid from "uniqid";
 import createHttpError from "http-errors";
-import { imageUpload, getProducts, writeProducts } from "../../utils/utils.js";
-
+import {
+  imageUpload,
+  getProducts,
+  writeProducts,
+  getReviews,
+  dataFolderPath,
+} from "../../../utils/utils.js";
 
 const productsRouter = express.Router();
-
-
+console.log("13" + dataFolderPath);
 
 //to get the products
 productsRouter.get("/", async (req, res, next) => {
-
   try {
     const products = await getProducts();
 
-    res.status(200).send(products);
+    if (req.query && req.query.category) {
+      const filteredProducts = products.filter(
+        (product) => product.category === req.query.category
+      );
+      res.send(filteredProducts);
+    } else {
+      res.send(products);
+    }
   } catch (error) {
     next(createHttpError(400, { message: error.message }));
   }
 });
 
-
 //to get a single product
 productsRouter.get("/:id", async (req, res, next) => {
-    try {
-        const fileAsBuffer = fs.readFileSync(productsFilePath);
-        const fileAsString = fileAsBuffer.toString();
-        fileAsJson = JSON.parse(fileAsString);
-        const product = fileAsJson.find((product) => product.id === req.params.id);
-        if (!product) {
-            res
-                .status(404)
-                .send({ message: `Product with ${req.params.id} is not found` });
-        }
-        res.send(product);
-    } catch (error) {
-        res.send(500).send({ message: error.message });
+  try {
+    const products = await getProducts();
+
+    const product = products.find((product) => product.id === req.params.id);
+    if (!product) {
+      res.send("product not found");
     }
+    res.status(200).send(product);
+  } catch (error) {
+    res.send(500).send({ message: error.message });
+  }
 });
 
+// to get all the reviews of a specificproduct
+productsRouter.get("/:id/reviews", async (req, res, next) => {
+  try {
+    const productReviews = await getReviews();
+    const productReview = productReviews.filter(
+      (review) => review.productId === req.params.id
+    );
+    if (!productReview) {
+      res.send("product review not found");
+    }
+    res.status(200).send(productReview);
+  } catch (err) {
+    next(createHttpError(400, { message: err.message }));
+  }
+});
+// to get all the producst based on category
+productsRouter.get("/", async (req, res, next) => {
+  try {
+    res.send();
+  } catch (err) {
+    next(createHttpError(400, { message: error.message }));
+  }
+});
 //to post a product
-
 productsRouter.post("/", async (req, res, next) => {
   try {
     const newProduct = {
@@ -123,7 +151,6 @@ productsRouter.delete("/:id", async (req, res, next) => {
   } catch (error) {
     next(createHttpError(400, { message: error.message }));
   }
-
 });
 
-export default productsRouter
+export default productsRouter;
