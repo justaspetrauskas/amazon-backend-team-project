@@ -6,9 +6,11 @@ import {
   getProducts,
   writeProducts,
   getReviews,
+  dataFolderPath,
 } from "../../../utils/utils.js";
 
 const productsRouter = express.Router();
+console.log("13" + dataFolderPath);
 
 //to get the products
 productsRouter.get("/", async (req, res, next) => {
@@ -21,7 +23,7 @@ productsRouter.get("/", async (req, res, next) => {
       );
       res.send(filteredProducts);
     } else {
-      res.send(books);
+      res.send(products);
     }
   } catch (error) {
     next(createHttpError(400, { message: error.message }));
