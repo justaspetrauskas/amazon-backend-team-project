@@ -4,10 +4,21 @@ import uniqid from "uniqid";
 import multer from "multer";
 import { fileURLToPath } from "url";
 import { dirname, join } from "path";
+import { v2 as cloudinary } from "cloudinary";
+import { CloudinaryStorage } from "multer-storage-cloudinary";
+
 const { readJSON, writeJSON } = fs;
 
 export const publicFolderPath = path.join(process.cwd(), "public");
-// set storage for the files
+// set url storage
+const cloudinaryStorage = new CloudinaryStorage({
+  cloudinary,
+  params: {
+    folder: "strive-marketplace",
+  },
+});
+
+// set local storage for the files
 const storage = multer.diskStorage({
   destination: publicFolderPath,
   fileFilter: function (req, file, cb) {
@@ -22,7 +33,7 @@ const storage = multer.diskStorage({
   },
 });
 
-export const imageUpload = multer({ storage: storage });
+export const imageUpload = multer({ storage: cloudinaryStorage });
 export const dataFolderPath = join(
   dirname(fileURLToPath(import.meta.url)),
   "../data"
