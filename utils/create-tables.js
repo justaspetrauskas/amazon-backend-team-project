@@ -1,9 +1,9 @@
 import pg from "pg";
 
-const { DATABASE_URL, DATABASE_URL_DEV, NODE_ENV } = process.env;
+const { DATABASE_URL, LOCAL_DATABASE_URL, NODE_ENV } = process.env;
 const isProduction = NODE_ENV === "production";
 console.log("database url " + DATABASE_URL);
-const connectionString = DATABASE_URL;
+const connectionString = isProduction ? DATABASE_URL : LOCAL_DATABASE_URL;
 const sslConfig = isProduction
   ? {
       ssl: {
