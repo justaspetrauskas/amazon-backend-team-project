@@ -1,5 +1,6 @@
 import express from "express";
 import uniqid from "uniqid";
+import { pool } from "../../../utils/create-tables.js";
 import createHttpError from "http-errors";
 import {
   imageUpload,
@@ -15,47 +16,30 @@ console.log("13" + dataFolderPath);
 //to get the products
 productsRouter.get("/", async (req, res, next) => {
   try {
-    const products = await getProducts();
-
-    if (req.query && req.query.category) {
-      const filteredProducts = products.filter(
-        (product) => product.category === req.query.category
-      );
-      res.send(filteredProducts);
-    } else {
-      res.send(products);
-    }
+    const query = `SELECT * FROM products;`;
+    const result = await pool.query(query);
+    res.send(result.rows);
   } catch (error) {
     next(createHttpError(400, { message: error.message }));
   }
 });
 
-//to get a single product
-productsRouter.get("/:id", async (req, res, next) => {
+// to get a product and a list of all the reviews of a specificproduct
+productsRouter.get("/:id/", async (req, res, next) => {
   try {
-    const products = await getProducts();
-
-    const product = products.find((product) => product.id === req.params.id);
-    if (!product) {
-      res.send("product not found");
+    const query = `SELECT * FROM products WHERE product_id=${req.params.id}`;
+    const result = await pool.query(query);
+    if (result.rows.length > 0) {
+      const product = result.rows[0];
+      const reviewQuery = `SELECT * FROM reviews WHERE product=${req.params.id};`;
+      const reviewResult = await pool.query(reviewQuery);
+      const reviews = reviewResult.rows;
+      res.send({ author, books });
+    } else {
+      res
+        .status(404)
+        .send({ message: `Product with ${req.params.id} is not found.` });
     }
-    res.status(200).send(product);
-  } catch (error) {
-    res.send(500).send({ message: error.message });
-  }
-});
-
-// to get all the reviews of a specificproduct
-productsRouter.get("/:id/reviews", async (req, res, next) => {
-  try {
-    const productReviews = await getReviews();
-    const productReview = productReviews.filter(
-      (review) => review.productId === req.params.id
-    );
-    if (!productReview) {
-      res.send("product review not found");
-    }
-    res.status(200).send(productReview);
   } catch (err) {
     next(createHttpError(400, { message: err.message }));
   }
@@ -68,70 +52,78 @@ productsRouter.get("/", async (req, res, next) => {
     next(createHttpError(400, { message: error.message }));
   }
 });
+
 //to post a product
-productsRouter.post("/", async (req, res, next) => {
-  try {
-    const newProduct = {
-      id: uniqid(),
-      ...req.body,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    };
-
-    const products = await getProducts();
-
-    products.push(newProduct);
-    await writeProducts(products);
-    res.status(200).send({ newProduct });
-  } catch (error) {
-    res.send(500).send({ message: error.message });
-  }
-});
-//to post a picture
 productsRouter.post(
-  "/:id/upload",
+  "/",
   imageUpload.single("image"),
   async (req, res, next) => {
     try {
-      const products = await getProducts();
-      const product = products.find((product) => product.id === req.params.id);
-      if (!product) {
-        next(createHttpError(400, { message: error.message }));
-      } else {
-        product["imageURL"] = req.file.path;
-        // products.push(product);
-        await writeProducts(products);
+      const { name, description, brand, price } = req.body;
+      const { image_URL } = req.file.path;
+      const query = `
+INSERT INTO products(
+  name,description,brand,price,category
+)VALUES(
+   ${"'" + name + "'"},
+   ${"'" + description + "'"},
+   ${"'" + brand + "'"},
+   ${"'" + price + "'"},
+   ${"'" + country + "'"},
+   ${"'" + image_URL + "'"},
+   created_at= NOW()
+   ) RETURNING *;`;
 
-        res.status(200).send({ product });
-      }
-    } catch (err) {
-      next(createHttpError(400, { message: error.message }));
+      const result = await pool.query(query);
+      res.status(200).send(result.rows[0]);
+    } catch (error) {
+      res.send(500).send({ message: error.message });
     }
   }
 );
+//to post a picture
+// productsRouter.post(
+//   "/:id/upload",
+//   imageUpload.single("image"),
+//   async (req, res, next) => {
+//     try {
+//       const products = await getProducts();
+//       const product = products.find((product) => product.id === req.params.id);
+//       if (!product) {
+//         next(createHttpError(400, { message: error.message }));
+//       } else {
+//         product["imageURL"] = req.file.path;
+//         // products.push(product);
+//         await writeProducts(products);
+
+//         res.status(201).send(result.rows[0]);
+//       }
+//     } catch (err) {
+//       next(createHttpError(400, { message: error.message }));
+//     }
+//   }
+// );
 
 // to update the product
 productsRouter.put("/:id", async (req, res, next) => {
   try {
-    const products = await getProducts();
+    const { name, description, brand, price } = req.body;
+    const { image_URL } = req.file.path;
 
-    const productIndex = products.findIndex(
-      (product) => product.id === req.params.id
-    );
-    if (!productIndex == -1) {
-      res
-        .status(404)
-        .send({ message: `product with ${req.params.id} is not found` });
-    }
-    const previousProductData = products[productIndex];
-    const changedProduct = {
-      ...previousProductData,
-      ...req.body,
-      updatedAt: new Date(),
-    };
-    products[productIndex] = changedProduct;
-    await writeProducts(products);
-    res.send("updated");
+    const query = `
+    UPDATE products SET
+    name=${"'" + name + "'"},
+    description=${"'" + description + "'"},
+    brand=${"'" + brand + "'"},
+    price=${"'" + price + "'"},
+    country=${"'" + country + "'"},
+    image_URL=${"'" + image_URL + "'"},
+    updated_at= NOW()
+    WHERE product_id=${req.params.id}
+            RETURNING*;
+    `;
+    const result = await pool.query(query);
+    res.send(result.rows[0]);
   } catch (error) {
     next(createHttpError(400, { message: error.message }));
   }
@@ -139,14 +131,8 @@ productsRouter.put("/:id", async (req, res, next) => {
 
 productsRouter.delete("/:id", async (req, res, next) => {
   try {
-    const products = await getProducts();
-
-    const product = products.find((product) => product.id === req.params.id);
-    if (!product) {
-      next(createHttpError(400, { message: error.message }));
-    }
-    const filtered = products.filter((product) => product.id !== req.params.id);
-    await writeProducts(filtered);
+    const query = `DELETE FROM products WHERE product_id=${req.params.id}`;
+    await pool.query(query);
     res.status(204).send();
   } catch (error) {
     next(createHttpError(400, { message: error.message }));
