@@ -60,20 +60,20 @@ productsRouter.post(
   async (req, res, next) => {
     try {
       const { name, description, brand, price, category } = await req.body;
-      // const { image_URL } = req.file.path;
-      // console.log("image path" + req.file.path);
+      const { image_URL } = req.file.path;
+      console.log("image path" + req.file.path);
       const query = `
 INSERT INTO 
 products(
-  name,description,brand,price,category
+  name,description,brand,price,image_URL,category
 )
 VALUES(
    ${"'" + name + "'"},
    ${"'" + description + "'"},
    ${"'" + brand + "'"},
    ${"'" + price + "'"},
-   ${"'" + category + "'"},
-   created_at= NOW()
+   ${"'" + image_URL + "'"},
+   ${"'" + category + "'"}
    ) RETURNING *;`;
 
       const result = await pool.query(query);

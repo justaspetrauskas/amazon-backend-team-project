@@ -21,6 +21,7 @@ const query = `-- DROP TABLE IF EXISTS products;
                     description TEXT NOT NULL,
                     brand VARCHAR (50) NOT NULL,
                     price FLOAT NOT NULL,
+                    image_URL TEXT NOT NULL,
                     category VARCHAR (50) NOT NULL,
                     created_at TIMESTAMPTZ DEFAULT NOW(),
                     updated_at TIMESTAMPTZ DEFAULT NOW()
@@ -43,7 +44,6 @@ export const createTables = async () => {
   try {
     await pool.query(query);
     console.log("Default tables are created ✅");
-    console.log(await pool.query(query));
   } catch (error) {
     console.log(error);
     console.log("Default tables are not created ❌");
