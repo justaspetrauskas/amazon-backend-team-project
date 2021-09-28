@@ -33,7 +33,7 @@ const storage = multer.diskStorage({
   },
 });
 
-export const imageUpload = multer({ storage: cloudinaryStorage });
+export const imageUpload = multer({ storage: storage });
 export const dataFolderPath = join(
   dirname(fileURLToPath(import.meta.url)),
   "../data"

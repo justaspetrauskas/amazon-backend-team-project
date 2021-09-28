@@ -26,8 +26,8 @@ server.use(cors());
 server.use(express.json());
 server.use(express.static(publicFolderPath));
 
-// server.use("/products", productsRouter);
-server.use("/reviews", reviewRouter);
+server.use("/products", productsRouter);
+// server.use("/reviews", reviewRouter);
 
 console.table(listEndpoints(server));
 

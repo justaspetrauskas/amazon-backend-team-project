@@ -1,8 +1,7 @@
 import pg from "pg";
 
 const { DATABASE_URL, LOCAL_DATABASE_URL, NODE_ENV } = process.env;
-const isProduction = NODE_ENV === "production";
-console.log("database url " + DATABASE_URL);
+const isProduction = NODE_ENV !== "production";
 const connectionString = isProduction ? DATABASE_URL : LOCAL_DATABASE_URL;
 const sslConfig = isProduction
   ? {
@@ -13,14 +12,13 @@ const sslConfig = isProduction
   : {};
 
 export const pool = new pg.Pool({ connectionString, ...sslConfig });
-console.log("database pool " + pool);
 // create tables
 const query = `--DROP TABLE IF EXISTS products;
                 CREATE TABLE IF NOT EXISTS 
                 products (
                     product_id INTEGER PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
                     name VARCHAR (50) NOT NULL,
-                    decription TEXT NOT NULL,
+                    description TEXT NOT NULL,
                     image_URL TEXT NOT NULL,
                     brand VARCHAR (50) NOT NULL,
                     price FLOAT NOT NULL,
@@ -29,7 +27,7 @@ const query = `--DROP TABLE IF EXISTS products;
                     updated_at TIMESTAMPTZ DEFAULT NOW()
                     
                 );
-                --DROP TABLE IF EXISTS products;
+                --DROP TABLE IF EXISTS reviews;
                 CREATE TABLE IF NOT EXISTS 
                 reviews (
                     review_id INTEGER PRIMARY KEY GENERATED ALWAYS AS IDENTITY,

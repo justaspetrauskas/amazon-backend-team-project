@@ -59,8 +59,9 @@ productsRouter.post(
   imageUpload.single("image"),
   async (req, res, next) => {
     try {
-      const { name, description, brand, price } = req.body;
+      const { name, description, brand, price, category } = req.body;
       const { image_URL } = req.file.path;
+      console.log("image url" + req.file.path);
       const query = `
 INSERT INTO products(
   name,description,brand,price,category
@@ -69,15 +70,14 @@ INSERT INTO products(
    ${"'" + description + "'"},
    ${"'" + brand + "'"},
    ${"'" + price + "'"},
-   ${"'" + country + "'"},
-   ${"'" + image_URL + "'"},
+   ${"'" + category + "'"},
    created_at= NOW()
    ) RETURNING *;`;
 
       const result = await pool.query(query);
       res.status(200).send(result.rows[0]);
     } catch (error) {
-      res.send(500).send({ message: error.message });
+      res.status(500).send({ message: error.message });
     }
   }
 );
@@ -116,7 +116,6 @@ productsRouter.put("/:id", async (req, res, next) => {
     description=${"'" + description + "'"},
     brand=${"'" + brand + "'"},
     price=${"'" + price + "'"},
-    country=${"'" + country + "'"},
     image_URL=${"'" + image_URL + "'"},
     updated_at= NOW()
     WHERE product_id=${req.params.id}
