@@ -60,8 +60,8 @@ productsRouter.post(
   async (req, res, next) => {
     try {
       const { name, description, brand, price, category } = await req.body;
-      const { image_URL } = req.file.path;
-      console.log("image path" + req.file.path);
+      // const { image_URL } = req.file.path;
+      // console.log("image path" + req.file.path);
       const query = `
 INSERT INTO 
 products(
@@ -72,7 +72,7 @@ VALUES(
    ${"'" + description + "'"},
    ${"'" + brand + "'"},
    ${"'" + price + "'"},
-   ${"'" + image_URL + "'"},
+   ${"'" + image_url + "'"},
    ${"'" + category + "'"}
    ) RETURNING *;`;
 
